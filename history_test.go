@@ -58,6 +58,12 @@ func TestHistory_MarshalText(t *testing.T) {
 		string(b))
 }
 
+func Test_Latest(t *testing.T) {
+	assert.Nil(t, empty.Latest())
+	assert.Equal(t, b, one.Latest())
+	assert.Equal(t, c, many.Latest())
+}
+
 func Test_Count(t *testing.T) {
 	assert.Equal(t, 0, empty.Count())
 	assert.Equal(t, 1, one.Count())

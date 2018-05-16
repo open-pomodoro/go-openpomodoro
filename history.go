@@ -44,6 +44,18 @@ func (h History) MarshalText() ([]byte, error) {
 	return bytes.Join(bs, charNewline), nil
 }
 
+// Latest sorts the collection and then returns the latest Pomodoro.
+func (h *History) Latest() *Pomodoro {
+	sort.Sort(h)
+
+	n := len(h.Pomodoros)
+	if n == 0 {
+		return nil
+	}
+
+	return h.Pomodoros[n-1]
+}
+
 // Count returns the total Pomodoro count.
 func (h *History) Count() int {
 	return len(h.Pomodoros)
