@@ -2,13 +2,14 @@ package openpomodoro
 
 import (
 	"bytes"
+	"encoding/json"
 	"sort"
 	"time"
 )
 
 // History is a collection of Pomodoros.
 type History struct {
-	Pomodoros []*Pomodoro
+	Pomodoros []*Pomodoro `json:"pomodoros"`
 }
 
 // sort.Interface
@@ -16,8 +17,16 @@ func (h History) Len() int           { return len(h.Pomodoros) }
 func (h History) Swap(i, j int)      { h.Pomodoros[i], h.Pomodoros[j] = h.Pomodoros[j], h.Pomodoros[i] }
 func (h History) Less(i, j int) bool { return h.Pomodoros[i].StartTime.Before(h.Pomodoros[j].StartTime) }
 
-// MarshalText returns a byte slice of each Pomodoro in the History also
-// marshalled, separated by a newline.
+// MarshalJSON implements json.Marshaler.
+func (h History) MarshalJSON() ([]byte, error) {
+	// This is required so that json.Marshal ignores that we also implement
+	// encoding.TextMarshaler via MarshalText.
+	type alias History
+	return json.Marshal((alias)(h))
+}
+
+// MarshalText implements encoding.TextMarshaler. It returns a byte slice of
+// each Pomodoro in the History also marshaled, separated by a newline.
 func (h History) MarshalText() ([]byte, error) {
 	var bs [][]byte
 

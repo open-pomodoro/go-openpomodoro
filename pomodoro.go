@@ -2,6 +2,7 @@ package openpomodoro
 
 import (
 	"bytes"
+	"encoding/json"
 	"math"
 	"time"
 
@@ -21,10 +22,20 @@ var (
 
 // Pomodoro holds a single Pomodoro and related information.
 type Pomodoro struct {
-	StartTime   time.Time
-	Description string        `logfmt:"description"`
-	Duration    time.Duration `logfmt:"duration,m"`
-	Tags        []string      `logfmt:"tags"`
+	// StartTime is the time that the Pomodoro started.
+	StartTime time.Time `json:"start_time"`
+
+	// Description is a description of the Pomodoro.
+	Description string `logfmt:"description" json:"description"`
+
+	// Duration is the length of the Pomodoro.
+	Duration time.Duration `logfmt:"duration,m" json:"-"`
+	// JSONDuration is a placeholder for MarshalJSON to convert and store the
+	// duration in minutes.
+	JSONDuration int `json:"duration"`
+
+	// Tags are the list of tags for this Pomodoro.
+	Tags []string `logfmt:"tags" json:"tags"`
 }
 
 // NewPomodoro returns a Pomodoro with defaults set.
@@ -51,7 +62,16 @@ func (p Pomodoro) Matches(o *Pomodoro) bool {
 	return delta >= -time.Second && delta <= time.Second
 }
 
-// MarshallText marshals the Pomodoro's start time and attributes into a text
+// MarshalJSON implements json.Marshaler.
+func (p Pomodoro) MarshalJSON() ([]byte, error) {
+	// This is required so that json.Marshal ignores that we also implement
+	// encoding.TextMarshaler via MarshalText.
+	type alias Pomodoro
+	p.JSONDuration = p.DurationMinutes()
+	return json.Marshal((alias)(p))
+}
+
+// MarshalText marshals the Pomodoro's start time and attributes into a text
 // string.
 func (p Pomodoro) MarshalText() ([]byte, error) {
 	timestamp := []byte(p.StartTime.Format(TimeFormat))

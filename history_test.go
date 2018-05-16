@@ -2,6 +2,7 @@ package openpomodoro
 
 import (
 	"encoding"
+	"encoding/json"
 	"sort"
 	"testing"
 	"time"
@@ -23,7 +24,38 @@ var (
 
 func Test_HistoryInterfaces(t *testing.T) {
 	var _ encoding.TextMarshaler = History{}
+	var _ json.Marshaler = History{}
 	var _ sort.Interface = History{}
+}
+
+func TestHistory_MarshalJSON(t *testing.T) {
+	p := &Pomodoro{
+		StartTime:   time.Date(2016, 06, 14, 12, 0, 0, 0, time.UTC),
+		Duration:    25 * time.Minute,
+		Tags:        []string{"a", "b"},
+		Description: "A description",
+	}
+	h := &History{Pomodoros: []*Pomodoro{p}}
+	b, err := h.MarshalJSON()
+	assert.Nil(t, err)
+	assert.Equal(t,
+		`{"pomodoros":[{"start_time":"2016-06-14T12:00:00Z","description":"A description","duration":25,"tags":["a","b"]}]}`,
+		string(b))
+}
+
+func TestHistory_MarshalText(t *testing.T) {
+	p := &Pomodoro{
+		StartTime:   time.Date(2016, 06, 14, 12, 0, 0, 0, time.UTC),
+		Duration:    25 * time.Minute,
+		Tags:        []string{"a", "b"},
+		Description: "A description",
+	}
+	h := &History{Pomodoros: []*Pomodoro{p}}
+	b, err := h.MarshalText()
+	assert.Nil(t, err)
+	assert.Equal(t,
+		"2016-06-14T12:00:00Z description=\"A description\" duration=25 tags=a,b\n",
+		string(b))
 }
 
 func Test_Count(t *testing.T) {

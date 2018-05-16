@@ -2,6 +2,7 @@ package openpomodoro
 
 import (
 	"encoding"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -12,6 +13,35 @@ import (
 func Test_PomodoroInterfaces(t *testing.T) {
 	var _ encoding.TextMarshaler = Pomodoro{}
 	var _ encoding.TextUnmarshaler = &Pomodoro{}
+	var _ json.Marshaler = Pomodoro{}
+}
+
+func TestPomodoro_MarshalJSON(t *testing.T) {
+	p := &Pomodoro{
+		StartTime:   time.Date(2016, 06, 14, 12, 0, 0, 0, time.UTC),
+		Duration:    25 * time.Minute,
+		Tags:        []string{"a", "b"},
+		Description: "A description",
+	}
+	b, err := p.MarshalJSON()
+	assert.Nil(t, err)
+	assert.Equal(t,
+		`{"start_time":"2016-06-14T12:00:00Z","description":"A description","duration":25,"tags":["a","b"]}`,
+		string(b))
+}
+
+func TestPomodoro_MarshalText(t *testing.T) {
+	p := &Pomodoro{
+		StartTime:   time.Date(2016, 06, 14, 12, 0, 0, 0, time.UTC),
+		Duration:    25 * time.Minute,
+		Tags:        []string{"a", "b"},
+		Description: "A description",
+	}
+	b, err := p.MarshalText()
+	assert.Nil(t, err)
+	assert.Equal(t,
+		"2016-06-14T12:00:00Z description=\"A description\" duration=25 tags=a,b",
+		string(b))
 }
 
 func Test_Matches(t *testing.T) {
