@@ -166,7 +166,9 @@ func (c *Client) Start(p *Pomodoro) error {
 		}
 	}
 
-	p.StartTime = timeFunc()
+	if p.StartTime.IsZero() {
+		p.StartTime = timeFunc()
+	}
 
 	s, err := c.Settings()
 	if err != nil {

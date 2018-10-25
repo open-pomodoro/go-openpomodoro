@@ -276,6 +276,7 @@ func Test_Start(t *testing.T) {
 
 func Test_Start_withOptions(t *testing.T) {
 	timeFunc = fakeTime
+	startTime := timeFunc().Add(-10 * time.Minute)
 
 	c, err := NewClient(fixture(""))
 	require.Nil(t, err)
@@ -284,11 +285,12 @@ func Test_Start_withOptions(t *testing.T) {
 		Description: "description",
 		Duration:    30 * time.Minute,
 		Tags:        []string{"tag1", "tag2"},
+		StartTime:   startTime,
 	}
 
 	require.Nil(t, c.Start(p))
 
-	assert.Equal(t, p.StartTime, fakeTime())
+	assert.Equal(t, p.StartTime, startTime)
 
 	current, err := c.Pomodoro()
 	require.Nil(t, err)
