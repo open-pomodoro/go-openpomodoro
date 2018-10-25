@@ -272,7 +272,7 @@ func Test_Remaining(t *testing.T) {
 	p := NewPomodoro()
 	p.Duration = 25 * time.Minute
 
-	assert.Equal(t, 0, p.Remaining().Seconds())
+	assert.Equal(t, float64(0), p.Remaining().Seconds())
 
 	cases := map[time.Duration]time.Duration{
 		0 * time.Minute:  25 * time.Minute,
