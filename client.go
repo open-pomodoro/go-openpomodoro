@@ -18,6 +18,7 @@ type Client struct {
 	SettingsFile string
 }
 
+// State is a collection of all state.
 type State struct {
 	Pomodoro *Pomodoro
 	History  *History
@@ -93,9 +94,8 @@ func (c *Client) History() (*History, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return &History{Pomodoros: ps}, nil
-		} else {
-			return nil, err
 		}
+		return nil, err
 	}
 
 	lines := bytes.Split(b, charNewline)
